@@ -1,0 +1,247 @@
+package main;
+import java.util.Scanner;
+
+import corpicelesti.*;
+import sistemasolare.SistemaSolare;
+
+
+
+
+public class Main {
+	
+
+
+	public static Scanner LettoreStdin = new Scanner(System.in); // lettore stdin comune per il package main per evitare errori
+
+	private static final String WARNING_MSG_ID = "Attenzione! Il corpo celeste selezionato non esiste!";
+	private static final String MENU_PRINCIPALE_TITOLO = "Benvenuto nel menù PLANETARIUM!\nSeleziona l'operazione da eseguire: ";
+	private static final String[] MENU_PRINCIPALE_VOCI = {"1 - Opzioni pianeti", "2 - Opzioni lune", "3 - Calcolo centro di massa", "4 - Trova rotta fra due corpi celesti" };
+	private static final String MENU_TITOLO = "Seleziona l'operazione da eseguire:";
+	private static final String[] MENU_PIANETI_VOCI = {"1 - Crea pianeti", "2 - Rimuovi pianeti", "3 - Visualizza le lune orbitanti"};
+	private static final String[] MENU_LUNA_VOCI = {"1 - Crea luna", "2 - Rimuovi luna", "3 - Trova percorso per una luna"};
+	private static MyMenu menuPrincipale = new MyMenu(MENU_PRINCIPALE_TITOLO, MENU_PRINCIPALE_VOCI);
+	private static MyMenu menuPianeti = new MyMenu(MENU_TITOLO, MENU_PIANETI_VOCI);
+	private static MyMenu menuLune = new MyMenu(MENU_TITOLO, MENU_LUNA_VOCI);
+
+	
+	public static void main(String[] args) {
+		
+		System.out.println("BENVENUTO IN PLANETARIUM LA MIGLIOR PIATTAFORMA DI GESTIONE DI SISTEMI SOLARI");
+		
+		System.out.println("Inizia dando un nome al tuo sistema stellare: ");
+		String name = LettoreStdin.next();
+		Stella stellaPrincipale = creaStella(); // Crea la stella principale del sistema
+		SistemaSolare sistemaSolare = new SistemaSolare(stellaPrincipale, name);
+		
+		int sceltaPrincipale;	
+		
+		do 
+		{
+			System.out.println(visualizzaSisSolare(stellaPrincipale));
+			
+		    sceltaPrincipale = menuPrincipale.scegli();
+	
+		    // Switch statement per la navigazione nel menu' principale
+			switch(sceltaPrincipale) {
+						
+					case 1:											
+						opzioniPianeti(sistemaSolare); 	// Opzione 1 --> Mostra il sotto menu' delle operazioni eseguibili sui pianeti
+						break;
+						
+					case 2: 
+						opzioniLune(sistemaSolare);	   // Opzione 2 --> Mostra il sotto menu' delle operazioni eseguibili sulle lune
+						break;
+
+					case 3: 	// Opzione 3 --> Calcola le coordinate del centro di massa del sistema solare
+						System.out.println("Le coordinate del centro di massa sono: ");			
+						System.out.println(sistemaSolare.trovaCentroDiMassa().toString()); 
+						break;
+						
+					case 4: 	// Opzione 4 --> Calcola la rotta fra due corpi celesti
+						String id1;
+						String id2;
+						
+						System.out.println("Inserisci l'id del primo corpo celeste: "); 
+						id1 = LettoreStdin.next();
+						System.out.println("Inserisci l'id del secondo corpo celeste: ");
+						id2 = LettoreStdin.next();
+						if(sistemaSolare.getCorpoCelesteById(id1) != null | sistemaSolare.getCorpoCelesteById(id2) != null) {
+							CorpoCeleste c1 = sistemaSolare.getCorpoCelesteById(id1);
+							CorpoCeleste c2 = sistemaSolare.getCorpoCelesteById(id2);
+							System.out.println(sistemaSolare.calcoloRotta(c1, c2));
+						}
+						else {
+							System.out.println(WARNING_MSG_ID); // Stampa un messaggio di errore se il corpo celeste selezionato non esiste
+							break;
+						}
+						break;
+						
+					}
+		
+			}while(sceltaPrincipale != 0);
+		
+	}
+
+	
+	
+	
+	
+	/**
+	 * Metodo per visualizzare ed eseguire il sotto menu' delle operazioni sui pianeti
+	 * 
+	 * @param sistemaSolare Sistema solare attualmente in gestione
+	 */
+	private static void opzioniPianeti(SistemaSolare sistemaSolare) {
+		int scelta = menuPianeti.scegli();
+		String id_pianeta;
+		switch(scelta) {
+		
+			case 1:  // Opzione 1 --> Crea un nuovo pianeta
+				Pianeta pianeta = GestorePianeti.creaPianeta(sistemaSolare.getStella()); 
+				sistemaSolare.aggiungiPianeta(pianeta); // aggiungi pianeta
+				break;
+			
+			case 2: // Opzione 2 --> Rimuovi un pianeta
+				System.out.println("Inserisci l'id del pianeta che vuoi rimuovere: ");
+				id_pianeta = LettoreStdin.next();
+				if(id_pianeta != null) // Controlla se il pianeta che si desidera rimuovere esiste 
+					{
+						sistemaSolare.rimuoviPianeta(id_pianeta); 					
+				}
+				else {
+						System.out.println(WARNING_MSG_ID); // Stampa un messaggio di errore se il pianeta selezionato non esiste
+					}
+				break;
+				
+			case 3:  // Opzione 3 --> Stampa la lista delle lune orbitanti attorno a uno specifico pianeta
+				System.out.println("Inserisci l'id del pianeta per visualizare tutte le sue lune: ");
+				id_pianeta = LettoreStdin.next();
+				if(id_pianeta != null) { // Controlla se il pianeta esiste
+					System.out.println(GestorePianeti.getListaLune(sistemaSolare.getPianetaById(id_pianeta))); 
+				}
+				else {
+					System.out.println(WARNING_MSG_ID); // Stampa un messaggio di errore se il pianeta selezionato non esiste
+				}
+				break;
+	
+		}
+	
+	}
+	
+	
+	
+	
+	/**
+	 * Metodo per visualizzare ed eseguire il sotto menu' delle operazioni sulle lune
+	 * @param sistemaSolare Sistema solare attualmente in gestione
+	 */
+		
+	private static void opzioniLune(SistemaSolare sistemaSolare) {
+		int scelta = menuLune.scegli();
+		String id_pianeta;
+		String id_luna;
+		switch(scelta) {
+		
+			case 1:		// Opzione 1 --> Crea una nuova luna
+				System.out.println("Inserisci l'id del pianeta attorno al quale orbita la luna: ");
+				id_pianeta =  LettoreStdin.next();	
+				if (sistemaSolare.getPianetaById(id_pianeta) != null) {  // Controlla se il pianeta esiste 
+					Luna luna = GestoreLune.creaLuna(sistemaSolare.getPianetaById(id_pianeta));								
+					sistemaSolare.aggiungiLuna(luna);	// Crea la luna
+				}
+				else {
+					System.out.println(WARNING_MSG_ID); 	// Se il pianeta attoro al quale si vuole fare orbitare la luna non esiste, stampa un messaggio di errore
+					
+				}
+				break;
+			
+			case 2:    // Opzione 2 --> Rimuovi una luna
+				System.out.println("Inserisci l'id della luna da rimuovere: ");
+				id_luna = LettoreStdin.next();	
+				if (sistemaSolare.getLunaById(id_luna) != null) { // Controlla se la luna che si desidera rimuovere  
+					sistemaSolare.rimuoviLuna(id_luna); 					
+				}
+				else {
+					System.out.println(WARNING_MSG_ID); // Stampa un messaggio di errore se la luna non esiste
+				}
+				break;
+				
+			case 3:			// Opzione 3 --> Trova il percorso per raggiungere una determinata luna
+				System.out.println("Inserisci l'id della luna che vuoi raggingere: ");
+				id_luna = LettoreStdin.next();
+				if(sistemaSolare.getLunaById(id_luna) != null) // Se la luna non esiste non può essere raggiunta
+					{
+					System.out.println(sistemaSolare.trovaPercorso(sistemaSolare.getLunaById(id_luna)));
+				}
+				else {
+					System.out.println(WARNING_MSG_ID); // Stampa un messaggio di errore se la luna non esiste
+				}
+				break;	
+				
+		}
+	
+	}
+	
+	
+	
+	
+	
+	
+	/**
+	 * Ritorna una stringa contenente tutte le informazioni sul sistema solare
+	 * 
+	 * @param stella Stella del sistema solare
+	 * @return Una stringa contenente tutte le informazioni sul sistema solare
+	 */
+	
+	private static StringBuffer visualizzaSisSolare(Stella stella) { // visualizza tutti i pianeti e le rispettive lune
+		StringBuffer lista=new StringBuffer("\nSISTEMA SOLARE ATTUALE\n");
+		lista.append(String.format("%s:\n", getSchedaStella(stella)));
+		for(Pianeta pianeta : stella.getOrbitingPlanets()) {
+			lista.append(String.format("-%s:\n", GestorePianeti.getSchedaPianeta(pianeta)));
+			for(Luna luna: pianeta.getOrbitingMoons()) {
+				lista.append(String.format("--%s\n", GestoreLune.getSchedaLuna(luna)));
+			}
+		}
+		return lista;
+	}
+	
+	
+	
+	
+	/**
+	 * Metodo per creare una nuova stella
+	 * @return Una nuova stella
+	 */
+	private static Stella creaStella() {
+		String nome;
+		int massa;
+		String nome_e_massa;
+		// Crea la stella
+		System.out.println("Creazione della stella...");
+		System.out.println("Inserisci una stringa del tipo 'nome-massa' (esempio : sole-45) ");
+		nome_e_massa = Main.LettoreStdin.next();
+		nome_e_massa = nome_e_massa.replace('-',' ');
+		Scanner in2 = new Scanner(nome_e_massa);
+		nome = in2.next();
+		massa = in2.nextInt();
+		in2.close();
+		return new Stella(nome, massa);
+	}
+	
+	
+	
+	/**
+	 * Metodo che ritorna le informazioni su una stella
+	 * 
+	 * @param stella Stella
+	 * @return Informazioni sulla stella
+	 */
+	private static StringBuffer getSchedaStella(Stella stella) {
+		StringBuffer scheda =new StringBuffer("Tipo: stella  ");
+		scheda.append(String.format("Nome: %s, id: %s  ", stella.getName(), stella.getId()));
+		scheda.append(String.format("Massa: %d, Coordinate: %s  ", stella.getMassa(), stella.getAbsolute_coords().toString()));
+		
+		return scheda;
+	}
+}

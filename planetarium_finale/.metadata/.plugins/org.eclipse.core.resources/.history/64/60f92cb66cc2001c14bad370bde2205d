@@ -1,0 +1,325 @@
+package sistemasolare;
+
+
+import java.util.ArrayList;
+
+import coordinate.*;
+import corpicelesti.*;
+
+
+
+public class SistemaSolare {
+	
+	private Stella stella;
+	private String name;
+	
+	public SistemaSolare(Stella stella, String name) {
+		this.stella = stella;
+		this.name = name;
+	}
+	
+	/**
+	 * @return Stella del sistema solare
+	 */
+	public Stella getStella() {
+		return stella;
+	}
+
+	
+	
+	/**
+	 * @return Il nome del sistema solare
+	 */
+	
+	public String getName() {
+		return name;
+	}
+	
+	
+	/**
+	 * Cerca e ritorna un corpo celeste che possiede tramite id
+	 * @param Id del corpo celeste da cercare
+	 * @return corpo celeste
+	 */
+	public CorpoCeleste getCorpoCelesteById(String Id) {
+		if(stella.getId().equals(Id)) return stella; // controlla se e' la stella del sistema solare
+		for(Pianeta pianeta : stella.getOrbitingPlanets()) {
+			if(Id.equals(pianeta.getId())) { // cerca tra i pianeti
+				return pianeta;
+			}
+			for(Luna luna : pianeta.getOrbitingMoons()) {
+				if(Id.equals(luna.getId())) { // cerca tra tutte le lune
+					return luna;
+				}	
+			}	
+		}
+		return null; // se non lo trova ritorna null
+	}
+	
+
+	
+	/**
+	 * @return Centro di massa del sistema solare
+	 */
+	public Coordinate trovaCentroDiMassa() {
+		Coordinate coordAssolute;
+		float cooX_CM =0;   
+		float cooY_CM =0;
+		int massaTot = stella.getMassa();
+		
+		for(Pianeta pianeta : stella.getOrbitingPlanets()) {
+			cooX_CM += (pianeta.getMassa() * pianeta.getAbsolute_coords().getX()); // Somma le coordinate assolute moltiplicate per la massa 
+			cooY_CM += (pianeta.getMassa() * pianeta.getAbsolute_coords().getY()); // Esegue il ciclo per ogni pianeta
+			massaTot += pianeta.getMassa();
+			
+			for(Luna luna : pianeta.getOrbitingMoons()) {
+				coordAssolute = luna.getAbsolute_coords();
+				cooX_CM += (luna.getMassa() * coordAssolute.getX()); // Somma le coordinate assolute moltiplicate per la massa della luna
+				cooY_CM += (luna.getMassa() * coordAssolute.getY()); // L'operazione viene fatta per ogni luna
+				massaTot += luna.getMassa();
+				
+			}
+		}
+		
+		return new Coordinate((cooX_CM / massaTot), (cooY_CM / massaTot)); // Trova le coordinate facendo la divisione tra le due coordinate e la massa totale 
+	}
+	
+	
+	
+	
+	/**
+	 * Restituisci true se uno sepecifio corpo celeste esiste nel sistema solare
+	 * 
+	 * @param c Corpo celeste 
+	 * @return True se il corpo celeste esiste nel sistema solare, false altrimenti
+	 */
+	public boolean trovaCorpoCeleste(CorpoCeleste c) {
+		if(stella.equals(c)) return true;
+		if(stella.getOrbitingPlanets().contains(c)) return true;
+		for(Pianeta pianeta : stella.getOrbitingPlanets()) {
+			if(pianeta.getOrbitingMoons().contains(c)) return true;
+		}
+		return false;
+	}
+	
+	
+	
+	
+	
+	/**
+	 * Metodo per calcolare la rotta fra due copri del sistema solare
+	 * 
+	 * @param corpo1 Corpo 1
+	 * @param corpo2 Corpo 2
+	 * @return Il percorso per arrivare al corpo 2 dal corpo 1
+	 */
+	
+	public StringBuffer calcoloRotta(CorpoCeleste corpo1, CorpoCeleste corpo2) {
+		StringBuffer rotta = new StringBuffer("");
+		float distanzaTot = 0;
+		Pianeta pianeta = null;
+		Luna luna = null;
+		if(trovaCorpoCeleste(corpo1) == false || trovaCorpoCeleste(corpo2) == false ) { // controlla se entrambi i corpi esistono
+			return null;
+		}
+		// trova di che tipo è corpo1
+		if(corpo1.getId().charAt(1) == 'L') { // controlla se corpo1 è una luna
+				luna=getLunaById(corpo1.getId()); // se corpo1 è una luna allora ci si sposta sul pianeta attorno al quale orbita
+				rotta.append(String.format("Luna (nome: %s, Id: %s)", luna.getName(), luna.getId()));
+				pianeta = luna.getOrbitAround();
+				rotta.append(String.format(">Pianeta (nome: %s, Id: %s)", pianeta.getName(), pianeta.getId())); // scende sul pianeta a cui orbita
+				distanzaTot += OperazioniCoordinate.distanzaPunti(luna.getAbsolute_coords(), pianeta.getAbsolute_coords()); // aumenta la distanza percorsa
+		}
+		else if(corpo1.getId().charAt(1) == 'P'){ // controlla se corpo1 è un pianeta
+			pianeta = getPianetaById(corpo1.getId()); // se è un pianeta allora si parte dal pianeta
+			rotta.append(String.format("Pianeta (nome: %s, Id: %s)", pianeta.getName(), pianeta.getId()));
+								
+		}
+		else {//il corpo 1 è una stella e ha le sue due classi
+			rotta.append(String.format("Stella (nome: %s, Id: %s)", stella.getName(), stella.getId()));
+			if(stella.getOrbitingPlanets().contains(corpo2)) { // controlla se corpo2 è un pianeta
+				rotta.append(String.format("> Pianeta (nome: %s, Id: %s)", corpo2.getName(), corpo2.getId()));
+				distanzaTot += OperazioniCoordinate.distanzaPunti(((Pianeta)corpo2).getAbsolute_coords(), stella.getAbsolute_coords());
+			}
+			else { // se corpo2 è una luna allora si va prima sul pianeta e infine sulla luna
+				for(Pianeta pianeta2: stella.getOrbitingPlanets()) {
+					for(Luna lun: pianeta2.getOrbitingMoons()) { // for annidato per cercare tra tutte le lune 
+						if(lun.equals(corpo2)) { // se la luna viene trovata restituisce il percorso
+							rotta.append(String.format("> Pianeta(nome: %s, Id: %s)",pianeta2.getName(),pianeta2.getId()));
+							distanzaTot+=OperazioniCoordinate.distanzaPunti(pianeta2.getAbsolute_coords(), stella.getAbsolute_coords());
+							rotta.append(String.format("> Luna (nome: %s, Id: %s)",lun.getName(),lun.getId()));
+							distanzaTot+=OperazioniCoordinate.distanzaPunti(lun.getAbsolute_coords(), pianeta2.getAbsolute_coords());
+							break;
+						}
+					}
+				}
+			}
+		}
+		//#######################################################################################################//
+ 		//                                 si inizia a navigare!												 //
+		
+		if(pianeta.getOrbitingMoons().contains(corpo2) && corpo1.getId().charAt(0) != 'S') {// Controlla se il corpo2 sta sulle lune del pianeta, e lo fa solo se il corpo1 non è una stella 
+			rotta.append(String.format(">Luna(nome: %s Id: %s)",corpo2.getName(),corpo2.getId())); // va sulla luna e termina
+			distanzaTot += OperazioniCoordinate.distanzaPunti(((Luna)corpo2).getAbsolute_coords(), pianeta.getAbsolute_coords()); // aggiunge la distanza
+		}
+		else if(stella.getOrbitingPlanets().contains(corpo2)) { // controlla se corpo2 è un pianeta
+			rotta.append(String.format("> Stella (nome: %s, Id: %s)", stella.getName(), stella.getId())); // se è un pianeta allora si va sulla stella e poi si raggiunge il pianeta
+			distanzaTot += OperazioniCoordinate.distanzaPunti(pianeta.getAbsolute_coords(), stella.getAbsolute_coords());
+			rotta.append(String.format("> Pianeta (nome: %s, Id: %s)", corpo2.getName(), corpo2.getId()));
+			distanzaTot += OperazioniCoordinate.distanzaPunti(((Pianeta)corpo2).getAbsolute_coords(), stella.getAbsolute_coords());
+		}
+		else if(stella.equals(corpo2)) { // se corpo2 è una stella, allora si va sulla stella
+			rotta.append(String.format("> Stella (nome: %s, Id: %s)", stella.getName(), stella.getId()));
+			distanzaTot+=OperazioniCoordinate.distanzaPunti(pianeta.getAbsolute_coords(), stella.getAbsolute_coords());
+		}
+		else { // se corpo2 è una luna allora si va prima sulla stella, poi sul pianeta e infine sulla luna
+			for(Pianeta pianeta2: stella.getOrbitingPlanets()) {
+				for(Luna lun: pianeta2.getOrbitingMoons()) { // for annidato per cercare tra tutte le lune 
+					if(lun.equals(corpo2)) { // se la luna viene trovata restituisce il percorso
+						rotta.append(String.format("> Stella (nome: %s, Id: %s)",stella.getName(),stella.getId()));
+						distanzaTot+=OperazioniCoordinate.distanzaPunti(pianeta2.getAbsolute_coords(), stella.getAbsolute_coords());
+						rotta.append(String.format("> Pianeta(nome: %s, Id: %s)",pianeta2.getName(),pianeta2.getId()));
+						distanzaTot+=OperazioniCoordinate.distanzaPunti(pianeta2.getAbsolute_coords(), stella.getAbsolute_coords());
+						rotta.append(String.format("> Luna (nome: %s, Id: %s)",lun.getName(),lun.getId()));
+						distanzaTot+=OperazioniCoordinate.distanzaPunti(lun.getAbsolute_coords(), pianeta2.getAbsolute_coords());
+						break;
+					}
+				}
+			}
+		}
+		
+		rotta.append(String.format(" Distanza percorsa totale: %.2f", distanzaTot)); // Aggiungi la distanza percorsa totale alla fine della rotta
+		
+		return rotta;
+	}
+	
+
+	
+	
+	// ################ PARTE DELLE LUNE ################ // 
+
+		/**
+		 * Aggiungi una luna al relativo pianeta.
+		 * @param luna Luna da aggiungere
+		 */
+		
+		public void aggiungiLuna(Luna luna) {
+			for(Pianeta pianeta : stella.getOrbitingPlanets()) {
+				if(pianeta.getId().compareTo(luna.getOrbitAround().getId()) == 0) {
+					pianeta.addOrbitingMoon(luna);
+				}
+			}
+		}
+		
+		
+		
+		/**
+		 * Cerca e rimuovi una luna tramite id.
+		 * @param IdLuna Id della luna da rimuovere
+		 */
+		public void rimuoviLuna(String IdLuna) {
+			ArrayList<Pianeta> pianetiOrbitanti;
+			pianetiOrbitanti = stella.getOrbitingPlanets();
+			for(int i=0; i<pianetiOrbitanti.size(); i++) {
+				for(int k=0; k<pianetiOrbitanti.get(i).getOrbitingMoons().size(); k++) {
+					if(IdLuna.compareTo(pianetiOrbitanti.get(i).getOrbitingMoons().get(k).getId()) == 0) {
+						pianetiOrbitanti.get(i).removeOrbitingMoon(k);
+						break;
+					}
+					
+				}
+			}
+		}
+		
+		
+		
+		/**
+		 * Cerca e restitiuisci una luna tramite id.
+		 * @param Id Id della luna da cercare
+		 * @return Luna con il corretto id (ritorna null se la luna non e' stata trovata)
+		 */
+		public Luna getLunaById(String Id) {
+			for(Pianeta pianeta : stella.getOrbitingPlanets()) {
+				for(Luna luna : pianeta.getOrbitingMoons()) {
+					if(Id.compareTo(luna.getId()) == 0) {
+						return luna;
+					}	
+				}	
+			}
+			return null;
+		}
+		
+		
+		
+		// ################ PARTE DEI PIANETI ################ //
+		
+		
+		/**
+		 * Aggiungi un pianeta all'orbita della stella.
+		 * @param pianeta Pianeta da aggiungere
+		 */
+		public void aggiungiPianeta(Pianeta pianeta) {
+			stella.addOrbitingPlanet(pianeta);
+		}
+		
+		
+		/**
+		 * Rimuovi un pianeta tramite id.
+		 * @param idPianeta Id del pianeta da rimuovere
+		 */
+		public void rimuoviPianeta(String idPianeta) {
+			for(int i=0; i<stella.getOrbitingPlanets().size(); i++) {
+				if(idPianeta.compareTo(stella.getOrbitingPlanets().get(i).getId()) == 0) {
+					stella.removeOrbitingPlanet(i);
+					break;
+				}
+			}
+		}
+		
+		
+		
+		/**
+		 * Cerca e restituisci un pianeta tramite id.
+		 * @param Id Id del pianeta da cercare
+		 * @return Il pianeta desiderato (restituisci null se il pianeta non e' stato trovato)
+		 */
+		
+		public Pianeta getPianetaById(String Id) {
+			for(Pianeta p : stella.getOrbitingPlanets()) {
+				if(Id.compareTo(p.getId()) == 0) {
+					return p;
+				}	
+			}
+			return null;
+		}
+		
+		
+		
+		/**
+		 * Trova il percorso di una specifica luna (Stella --> Pianeta --> Luna)
+		 * 
+		 * @param luna Luna da cercare
+		 * @return Percorso per arrivare alla luna
+		 */
+		public StringBuffer trovaPercorso(Luna luna) {
+			StringBuffer percorso = new StringBuffer(" ");
+				for(Pianeta p: stella.getOrbitingPlanets()) {
+					for(Luna l: p.getOrbitingMoons()) {
+						if(luna.getId().compareTo(l.getId()) == 0) {
+							percorso.append(String.format("Stella(nome: %s Id: %s)", stella.getName(), stella.getId()));
+							percorso.append(String.format(">Pianeta(nome: %s Id: %s)", p.getName(), p.getId()));
+							percorso.append(String.format(">Luna(nome: %s Id: %s)\n", l.getName(), l.getId()));
+							break;
+						}
+					}
+				}
+			return percorso;
+		}
+		
+	
+	
+	
+	
+	
+
+}

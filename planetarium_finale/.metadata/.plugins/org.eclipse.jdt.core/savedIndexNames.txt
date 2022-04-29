@@ -1,0 +1,4 @@
+INDEX VERSION 1.131+C:\Users\Giaco\Desktop\planetarium finale\.metadata\.plugins\org.eclipse.jdt.core
+4004024946.index
+458809593.index
+1865797976.index
