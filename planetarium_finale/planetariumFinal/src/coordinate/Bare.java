@@ -12,7 +12,7 @@ package coordinate;
  *
  */
 
-public class Coordinate extends Punto{
+public class Bare extends Punto{
 	
 	private Punto origine = new Punto(0,0);
 
@@ -25,7 +25,7 @@ public class Coordinate extends Punto{
 	 * @param origine Origine del sistema di riferimento
 	 */
 	
-	public Coordinate(float x, float y, Punto origine) {
+	public Bare(float x, float y, Punto origine) {
 		super(x, y);
 		this.origine = origine;
 	}
@@ -38,7 +38,7 @@ public class Coordinate extends Punto{
 	 * @param y Coordinata Y
 	 */
 
-	public Coordinate(float x, float y) {
+	public Bare(float x, float y) {
 		super(x, y);
 	}
 

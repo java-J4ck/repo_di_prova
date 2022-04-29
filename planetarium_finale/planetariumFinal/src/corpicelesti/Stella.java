@@ -4,7 +4,7 @@ package corpicelesti;
 
 import java.util.ArrayList;
 
-import coordinate.Coordinate;
+import coordinate.Bare;
 
 
 
@@ -12,7 +12,7 @@ public class Stella extends CorpoCeleste{
 
 	private static int id_num;
 	private ArrayList<Pianeta> orbitingPlanets = new ArrayList<Pianeta>();	// ArrayList di pianeti che orbitano attorno alla stella
-	private Coordinate absolute_coords = new Coordinate(0, 0);     			// Coordinate della stella, considerata il centro del sistema solare (immutabili)
+	private Bare absolute_coords = new Bare(0, 0);     			// Coordinate della stella, considerata il centro del sistema solare (immutabili)
 	
 	
 	/**
@@ -35,7 +35,7 @@ public class Stella extends CorpoCeleste{
 	 * @return Le coordinate assolute della stella (il centro del sistema solare)
 	 */
 	
-	public Coordinate getAbsolute_coords() {
+	public Bare getAbsolute_coords() {
 		return absolute_coords;
 	}
 	
