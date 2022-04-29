@@ -1,6 +1,6 @@
 package corpicelesti;
 
-import coordinate.Coordinate;
+import coordinate.Bare;
 import coordinate.OperazioniCoordinate;
 import coordinate.Punto;
 
@@ -9,8 +9,8 @@ public class Luna extends CorpoCeleste{
 	private static final int MAX_ORBIT_DISTANCE = 35;
 	private static final String WARNING_MSG_COORDS = "Attenzione! La luna e' troppo lontano per poter orbitare attorno al pianeta %s";
 	private static int id_num;
-	private Coordinate absolute_coords = new Coordinate(0, 0);                      // Coordinate del pianeta (rispetto al centro del sistema solare)
-	private Coordinate relative_coords = new Coordinate(0, 0, new Punto(0, 0));		// Coordinate del corpo celeste rispetto al corpo celeste attorno a cui ruota
+	private Bare absolute_coords = new Bare(0, 0);                      // Coordinate del pianeta (rispetto al centro del sistema solare)
+	private Bare relative_coords = new Bare(0, 0, new Punto(0, 0));		// Coordinate del corpo celeste rispetto al corpo celeste attorno a cui ruota
 	private Pianeta orbitAround;  // Pianeta attorno al quale orbita la luna
 	
 	
@@ -47,7 +47,7 @@ public class Luna extends CorpoCeleste{
 	 * @return Le coordinate assolute della luna (rispetto al centro del sistema solare)
 	 */
 	
-	public Coordinate getAbsolute_coords() {
+	public Bare getAbsolute_coords() {
 		return absolute_coords;
 	}
 	
@@ -86,7 +86,7 @@ public class Luna extends CorpoCeleste{
 	 * @return Le coordinate relative della luna (rispetto al pianeta attorno alla quale orbita)
 	 */
 	
-	public Coordinate getRelative_coords() {
+	public Bare getRelative_coords() {
 		return relative_coords;
 	}
 	

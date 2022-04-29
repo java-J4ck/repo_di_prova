@@ -3,7 +3,7 @@ package corpicelesti;
 
 import java.util.ArrayList;
 
-import coordinate.Coordinate;
+import coordinate.Bare;
 
 
 public class Pianeta extends CorpoCeleste{
@@ -11,7 +11,7 @@ public class Pianeta extends CorpoCeleste{
 	private static final int MAX_ORBIT_DISTANCE = 50;
 	private static final String WARNING_MSG_COORDS = "Attenzione! Il pianeta e' troppo lontano per poter orbitare attorno alla stella %s";
 	private static int id_num;
-	private Coordinate absolute_coords = new Coordinate(0, 0);     // Coordinate del pianeta (rispetto al centro del sistema solare) 
+	private Bare absolute_coords = new Bare(0, 0);     // Coordinate del pianeta (rispetto al centro del sistema solare) 
 	private Stella orbitAround;										// Stella attorno alla quale il pianeta orbita	
 	private ArrayList<Luna> orbitingMoons = new ArrayList<Luna>();	// ArrayList di luna che orbitano attorno al pianeta
 	
@@ -92,7 +92,7 @@ public class Pianeta extends CorpoCeleste{
 	 * @return Le coordinate assolute del pianeta (rispetto al centro del sistema solare)
 	 */
 	
-	public Coordinate getAbsolute_coords() {
+	public Bare getAbsolute_coords() {
 		return absolute_coords;
 	}
 

@@ -61,8 +61,8 @@ public class SistemaSolare {
 	/**
 	 * @return Centro di massa del sistema solare
 	 */
-	public Coordinate trovaCentroDiMassa() {
-		Coordinate coordAssolute;
+	public Bare trovaCentroDiMassa() {
+		Bare coordAssolute;
 		float cooX_CM =0;   
 		float cooY_CM =0;
 		int massaTot = stella.getMassa();
@@ -81,7 +81,7 @@ public class SistemaSolare {
 			}
 		}
 		
-		return new Coordinate((cooX_CM / massaTot), (cooY_CM / massaTot)); // Trova le coordinate facendo la divisione tra le due coordinate e la massa totale 
+		return new Bare((cooX_CM / massaTot), (cooY_CM / massaTot)); // Trova le coordinate facendo la divisione tra le due coordinate e la massa totale 
 	}
 	
 	

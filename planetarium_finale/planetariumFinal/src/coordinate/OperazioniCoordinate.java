@@ -12,12 +12,12 @@ public class OperazioniCoordinate {
 	 * @return coordinate Coordinate del punto rispetto all'origine
 	 */
 	
-	public static Coordinate getCoordinate(Punto punto, Punto origine) {
+	public static Bare getCoordinate(Punto punto, Punto origine) {
 		float x, y;
 		// In un sistema di riferimento con assi perpendicolari per trovare le coordinate basta fare la sottrazione delle x e delle y dei punti
 		x = punto.getX() - origine.getX();
 		y = punto.getY() - origine.getY();
-		return new Coordinate(x, y, origine);
+		return new Bare(x, y, origine);
 	}
 	
 	
@@ -28,7 +28,7 @@ public class OperazioniCoordinate {
 	 * @return punto Punto rappresentate la coordinata rispetto all'origine (0, 0)
 	 */
 	
-	public static Punto getPunto(Coordinate coord) {
+	public static Punto getPunto(Bare coord) {
 		float x, y;
 		x = coord.getX() + coord.getOrigine().getX();
 		y = coord.getY() + coord.getOrigine().getY();
@@ -42,16 +42,16 @@ public class OperazioniCoordinate {
 	 * @param origine Nuova origine
 	 * @return Nuove coordinate rispetto alla nuova origine
 	 */
-	public static Coordinate cambioCoordinate(Coordinate coord, Punto origine) {
+	public static Bare cambioCoordinate(Bare coord, Punto origine) {
 		// Prende le coordinate dell'origine vecchia rispetto alla nuova origine
-		Coordinate o1 = getCoordinate(coord.getOrigine(), origine);
+		Bare o1 = getCoordinate(coord.getOrigine(), origine);
 		float x, y;
 		// Per trovare le nuove coordinate di coord rispetto alla nuova origine, sommo le coordinate dell'origine vecchia rispetto alla nuova origine
 		// con le coordinate di coord rispetto alla vecchia origine
 		x = o1.getX() + coord.getX();
 		y = o1.getY() + coord.getY();
 		
-		return new Coordinate(x,y,origine);
+		return new Bare(x,y,origine);
 	}
 	
 	
@@ -63,7 +63,7 @@ public class OperazioniCoordinate {
 	 * @return Distanza fra c1 e c2
 	 */
 	
-	public static float distanzaPunti(Coordinate c1, Coordinate c2) {
+	public static float distanzaPunti(Bare c1, Bare c2) {
 		float distanza;
 		// Porta entrambi i punti allo stesso sistema di riferimento
 		c2 = cambioCoordinate(c2,c1.getOrigine());
