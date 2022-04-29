@@ -4,7 +4,7 @@ import java.util.Scanner;
 import corpicelesti.*;
 import sistemasolare.SistemaSolare;
 
-
+// h24_tot
 
 
 public class Main {
